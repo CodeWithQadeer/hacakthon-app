@@ -8,16 +8,23 @@ const Complaints = () => {
   const dispatch = useDispatch();
   const { list, loading, error } = useSelector((s) => s.complaints);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     dispatch(fetchAllComplaints());
   }, [dispatch]);
 
   const filteredList = useMemo(() => {
-    return list.filter((c) =>
-      c.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [list, search]);
+    return list.filter((c) => {
+      const matchesSearch = c.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" ||
+        c.status?.toLowerCase() === statusFilter.toLowerCase();
+      return matchesSearch && matchesStatus;
+    });
+  }, [list, search, statusFilter]);
 
   return (
     <div
@@ -26,13 +33,13 @@ const Complaints = () => {
         dark:from-gray-900 dark:via-gray-950 dark:to-black
         text-gray-900 dark:text-gray-100 rounded-2xl`}
     >
-      {/* ✅ Header Section */}
+      {/* Header Section */}
       <div className="max-w-6xl mx-auto mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <h2 className="text-3xl font-bold text-center sm:text-left text-gray-800 dark:text-gray-100 drop-shadow-sm dark:drop-shadow-[0_0_5px_rgba(255,255,255,0.2)]">
+        <h2 className="text-3xl font-bold text-center sm:text-left text-gray-800 dark:text-gray-100 drop-shadow-sm">
           All Complaints
         </h2>
 
-        {/* 🔍 Search Bar */}
+        {/* Search Bar */}
         <input
           type="text"
           placeholder="Search complaints..."
@@ -44,7 +51,24 @@ const Complaints = () => {
         />
       </div>
 
-      {/* ✅ Loading State (Skeletons) */}
+      {/* ✅ Filter Buttons */}
+      <div className="flex justify-center flex-wrap gap-3 mb-8">
+        {["all", "pending", "in progress", "resolved"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`px-5 py-2 rounded-full text-sm font-medium capitalize border transition-all duration-300 ${
+              statusFilter === status
+                ? "bg-indigo-500 text-white shadow-md"
+                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700 hover:bg-indigo-100 dark:hover:bg-gray-700"
+            }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+      {/* Loading State */}
       {loading && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -56,14 +80,14 @@ const Complaints = () => {
         </div>
       )}
 
-      {/* ✅ Error State */}
+      {/* Error State */}
       {error && (
         <p className="text-center text-red-600 dark:text-red-400 mt-10">
           {error}
         </p>
       )}
 
-      {/* ✅ Empty State */}
+      {/* Empty State */}
       {!loading && !error && filteredList.length === 0 && (
         <div className="text-center py-20">
           <p className="text-gray-600 dark:text-gray-400 text-lg">
@@ -72,7 +96,7 @@ const Complaints = () => {
         </div>
       )}
 
-      {/* ✅ Complaints Grid */}
+      {/* Complaints Grid */}
       <AnimatePresence>
         {!loading && !error && filteredList.length > 0 && (
           <motion.div

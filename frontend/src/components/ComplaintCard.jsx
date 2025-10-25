@@ -16,7 +16,7 @@ const ComplaintCard = ({ c }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-800 flex flex-col h-[520px]">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-800 flex flex-col h-[540px]">
       {/* Image Section */}
       {c.imageUrl ? (
         <img
@@ -32,7 +32,6 @@ const ComplaintCard = ({ c }) => {
 
       {/* Content Section */}
       <div className="flex flex-col justify-between flex-1 p-5">
-        {/* Upper Content */}
         <div className="flex flex-col grow overflow-hidden">
           <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">
             {c.title}
@@ -47,6 +46,16 @@ const ComplaintCard = ({ c }) => {
             {c.location?.address ||
               `${c.location?.lat?.toFixed(4)}, ${c.location?.lng?.toFixed(4)}`}
           </p>
+
+          {/* 🧑 User Info */}
+          {c.user && (
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+              👤 Reported by:{" "}
+              <span className="font-medium text-gray-800 dark:text-gray-200">
+                {c.user.name || c.user.email || "Anonymous"}
+              </span>
+            </p>
+          )}
 
           <p className="text-sm mt-3">
             <span className="font-semibold text-gray-800 dark:text-gray-200">

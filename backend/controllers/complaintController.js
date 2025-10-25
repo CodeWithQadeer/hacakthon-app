@@ -2,18 +2,21 @@
 import Complaint from "../models/Complaint.js";
 import { getAddressFromCoords } from "../utils/geocoding.js";
 
-// 🟢 Create complaint
+/* 🟢 CREATE COMPLAINT (USER) */
 export const createComplaint = async (req, res, next) => {
   try {
     const { title, description, category, imageUrl, lat, lng } = req.body;
 
-    if (!title || !description || !lat || !lng)
+    if (!title || !description || !lat || !lng) {
       return res
         .status(400)
         .json({ message: "All required fields must be filled" });
+    }
 
+    // Get address using coordinates
     const address = await getAddressFromCoords(lat, lng);
 
+    // Create complaint
     const complaint = await Complaint.create({
       userId: req.user._id,
       title,
@@ -23,53 +26,59 @@ export const createComplaint = async (req, res, next) => {
       location: { lat, lng, address },
     });
 
-    res
-      .status(201)
-      .json({ message: "Complaint created successfully", complaint });
+    res.status(201).json({
+      message: "Complaint created successfully",
+      complaint,
+    });
   } catch (err) {
     next(err);
   }
 };
 
-// 🟡 Get complaints by logged-in user
+/* 🟡 GET COMPLAINTS BY LOGGED-IN USER */
 export const getMyComplaints = async (req, res, next) => {
   try {
-    const complaints = await Complaint.find({ userId: req.user._id }).sort({
-      createdAt: -1,
-    });
-    res.json(complaints);
+    const complaints = await Complaint.find({ userId: req.user._id })
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(complaints);
   } catch (err) {
     next(err);
   }
 };
 
-// 🟠 Get all complaints (admin only)
+/* 🟠 GET ALL COMPLAINTS (ADMIN + PUBLIC FEED) */
 export const getAllComplaints = async (req, res, next) => {
   try {
-    const complaints = await Complaint.find().sort({ createdAt: -1 }); // newest first
+    const complaints = await Complaint.find()
+      .populate("userId", "name email") // ✅ populate user info
+      .sort({ createdAt: -1 }); // newest first
+
     res.status(200).json(complaints);
-  } catch (error) {
+  } catch (err) {
     res.status(500).json({ message: "Error fetching complaints" });
   }
 };
 
-// 🔵 Get complaint by ID
+/* 🔵 GET COMPLAINT BY ID */
 export const getComplaintById = async (req, res, next) => {
   try {
     const complaint = await Complaint.findById(req.params.id).populate(
       "userId",
       "name email"
     );
+
     if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
 
-    res.json(complaint);
+    res.status(200).json(complaint);
   } catch (err) {
     next(err);
   }
 };
 
-// 🟣 Get complaint status (for user view)
+/* 🟣 GET COMPLAINT STATUS (USER VIEW) */
 export const getComplaintStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -79,7 +88,7 @@ export const getComplaintStatus = async (req, res, next) => {
       return res.status(404).json({ message: "Complaint not found" });
     }
 
-    res.json({
+    res.status(200).json({
       status: complaint.status,
       message: `Your complaint is currently: ${complaint.status}`,
     });
@@ -88,7 +97,7 @@ export const getComplaintStatus = async (req, res, next) => {
   }
 };
 
-// 🔴 Admin: Update complaint status/message (email logic removed)
+/* 🔴 ADMIN: UPDATE COMPLAINT STATUS / ADMIN MESSAGE */
 export const updateComplaint = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -104,9 +113,10 @@ export const updateComplaint = async (req, res, next) => {
     // Update complaint details
     if (status) complaint.status = status;
     if (adminMessage) complaint.adminMessage = adminMessage;
+
     await complaint.save();
 
-    res.json({
+    res.status(200).json({
       message: "Complaint updated successfully",
       complaint,
     });
