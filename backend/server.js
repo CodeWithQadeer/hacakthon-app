@@ -14,12 +14,34 @@ connectDB();
 
 const app = express();
 
+// ✅ CORS configuration for both local and deployed frontend
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",                 // Local frontend
+      "https://improve-my-city.vercel.app",    // Deployed frontend on Vercel
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "10mb" }));
+app.use(morgan("dev"));
+
+// ✅ Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/complaints", complaintRoutes);
+app.use("/api/admin", adminRoutes);
+
+// ✅ Test route for email verification
 app.get("/test-email", async (req, res) => {
   try {
     await sendEmail(
-      "codewithqadeer@gmail.com", // change this to your email
+      "codewithqadeer@gmail.com", // your email here
       "Test Email from Improve My City",
-      "If you see this, your email setup works!"
+      "✅ If you received this email, Brevo or Nodemailer setup works fine!"
     );
 
     res.send("✅ Email sent successfully");
@@ -29,23 +51,12 @@ app.get("/test-email", async (req, res) => {
   }
 });
 
-
-
-app.use(cors({
-  origin: "http://localhost:5173",  // ✅ Your frontend port
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // ✅ Include PATCH
-  allowedHeaders: ["Content-Type", "Authorization"],
-}));
-
-app.use(express.json({ limit: "10mb" }));
-app.use(morgan("dev"));
-
-app.use("/api/auth", authRoutes);
-app.use("/api/complaints", complaintRoutes);
-app.use("/api/admin", adminRoutes);
-
+// ✅ Root route
 app.get("/", (req, res) => res.send("🌆 Improve My City API Running"));
+
+// ✅ Error middleware
 app.use(errorHandler);
 
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
