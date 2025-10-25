@@ -35,25 +35,33 @@ const AdminDashboard = () => {
     setAdminComment(c.adminComment || "");
   };
 
+  // ✅ Save complaint update (runs async, modal closes immediately)
   const submitUpdate = async () => {
     if (!selected || isSaving) return;
     setIsSaving(true);
 
-    const res = await dispatch(
+    // 🟢 Close modal immediately (non-blocking UX)
+    const currentId = selected._id;
+    setSelected(null);
+
+    // 🟢 Run async update in background
+    dispatch(
       adminUpdateComplaint({
-        id: selected._id,
+        id: currentId,
         data: { status, adminComment },
       })
-    );
-
-    if (!res.error) {
-      setSelected(null);
-      setIsSaving(false);
-      dispatch(fetchAllComplaints());
-    } else {
-      alert("❌ Something went wrong!");
-      setIsSaving(false);
-    }
+    )
+      .unwrap()
+      .then(() => {
+        // 🟢 Refresh complaints in background after saving
+        dispatch(fetchAllComplaints());
+      })
+      .catch(() => {
+        alert("❌ Something went wrong while updating complaint!");
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   return (
