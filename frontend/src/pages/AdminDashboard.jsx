@@ -1,4 +1,3 @@
-// src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,6 +12,7 @@ const AdminDashboard = () => {
   const [selected, setSelected] = useState(null);
   const [status, setStatus] = useState("");
   const [adminComment, setAdminComment] = useState("");
+  const [isSaving, setIsSaving] = useState(false); // ✅ prevent multiple clicks
 
   useEffect(() => {
     dispatch(fetchAllComplaints());
@@ -25,18 +25,23 @@ const AdminDashboard = () => {
   };
 
   const submitUpdate = async () => {
-    if (!selected) return;
+    if (!selected || isSaving) return; // ✅ stop multiple clicks
+    setIsSaving(true);
+
     const res = await dispatch(
       adminUpdateComplaint({
         id: selected._id,
         data: { status, adminComment },
       })
     );
+
     if (!res.error) {
       alert("✅ Complaint updated successfully!");
-      setSelected(null);
+      setSelected(null); // ✅ close modal
+      setIsSaving(false);
     } else {
       alert("❌ Something went wrong!");
+      setIsSaving(false);
     }
   };
 
@@ -88,7 +93,7 @@ const AdminDashboard = () => {
 
               <button
                 onClick={() => open(c)}
-                className="mt-3 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium py-2 rounded-xl shadow hover:shadow-lg transition"
+                className="mt-3 w-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-medium py-2 rounded-xl shadow hover:shadow-lg transition"
               >
                 Review / Update
               </button>
@@ -97,7 +102,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Modal for editing complaint */}
+      {/* ✅ Modal for editing complaint */}
       <AnimatePresence>
         {selected && (
           <motion.div
@@ -151,9 +156,14 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={submitUpdate}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow hover:shadow-lg transition"
+                  disabled={isSaving}
+                  className={`px-4 py-2 rounded-lg text-white shadow transition ${
+                    isSaving
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-linear-to-r from-green-500 to-emerald-600 hover:shadow-lg"
+                  }`}
                 >
-                  Save
+                  {isSaving ? "Saving..." : "Save"}
                 </button>
               </div>
             </motion.div>

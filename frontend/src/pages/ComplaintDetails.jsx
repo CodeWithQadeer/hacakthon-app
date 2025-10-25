@@ -74,6 +74,25 @@ const ComplaintDetails = () => {
                   `${current.location?.lat}, ${current.location?.lng}`}
               </p>
 
+              {/* ✅ Map View Section */}
+              {current.location?.lat && current.location?.lng && (
+                <div className="mt-4">
+                  <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                    Location on Map:
+                  </h3>
+                  <iframe
+                    title="Complaint Location"
+                    width="100%"
+                    height="300"
+                    loading="lazy"
+                    allowFullScreen
+                    className="rounded-lg shadow"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={`https://www.google.com/maps?q=${current.location.lat},${current.location.lng}&z=15&output=embed`}
+                  ></iframe>
+                </div>
+              )}
+
               <p className="font-medium text-gray-800 dark:text-gray-200">
                 Status:{" "}
                 <span className="font-semibold text-blue-600 dark:text-blue-400">
