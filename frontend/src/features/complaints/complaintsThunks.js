@@ -8,7 +8,7 @@ export const createComplaint = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const { token, ...data } = payload;
-      const res = await API.post("/complaints", data, {
+      const res = await API.post("/api/complaints", data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data.complaint;
@@ -23,7 +23,7 @@ export const fetchAllComplaints = createAsyncThunk(
   "complaints/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await API.get("/complaints");
+      const res = await API.get("/api/complaints");
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || { message: err.message });
@@ -36,7 +36,7 @@ export const fetchMyComplaints = createAsyncThunk(
   "complaints/fetchMy",
   async (token, { rejectWithValue }) => {
     try {
-      const res = await API.get("/complaints/my", {
+      const res = await API.get("/api/complaints/my", {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
@@ -51,7 +51,7 @@ export const fetchComplaintById = createAsyncThunk(
   "complaints/fetchById",
   async (id, { rejectWithValue }) => {
     try {
-      const res = await API.get(`/complaints/${id}`);
+      const res = await API.get(`/api/complaints/${id}`);
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data || { message: err.message });
@@ -66,8 +66,8 @@ export const adminUpdateComplaint = createAsyncThunk(
     try {
       // 🧠 Automatically choose endpoint based on what is being updated
       const endpoint = data.status
-        ? `/admin/complaints/status/${id}`
-        : `/admin/complaints/comment/${id}`;
+        ? `/api/admin/complaints/status/${id}`
+        : `/api/admin/complaints/comment/${id}`;
 
       const res = await API.patch(endpoint, data, {
         headers: { Authorization: `Bearer ${token}` },
