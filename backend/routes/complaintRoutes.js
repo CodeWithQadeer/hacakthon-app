@@ -29,7 +29,7 @@ router.get("/my", protect, getMyComplaints);
  * - Removed adminOnly middleware so all logged-in users can view
  * - You can remove `protect` if you want even public (non-logged-in) users to see
  */
-router.get("/", protect, getAllComplaints);
+router.get("/", getAllComplaints);
 
 /**
  * 🟣 Get single complaint by ID

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 import { useState } from "react";
@@ -8,11 +8,13 @@ import { FiMenu, FiX, FiLogOut } from "react-icons/fi";
 const Navbar = () => {
   const user = useSelector((s) => s.auth.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
     setMenuOpen(false);
+    navigate("/login");
   };
 
   const navLinks = [
@@ -27,7 +29,7 @@ const Navbar = () => {
       dark:bg-linear-to-r dark:from-gray-900/90 dark:to-gray-800/80 dark:text-gray-100 dark:border-gray-700`}
     >
       <div className="px-6 sm:px-10 py-4 flex justify-between items-center">
-        {/* Logo */}
+        {/* 🌆 Logo */}
         <Link
           to="/"
           className="font-semibold text-2xl tracking-wide bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text hover:opacity-80 transition"
@@ -35,7 +37,7 @@ const Navbar = () => {
           Improve My City
         </Link>
 
-        {/* Desktop Menu */}
+        {/* 🖥️ Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <motion.div whileHover={{ y: -2 }} key={link.to}>
@@ -88,7 +90,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* 📱 Mobile Menu Button */}
         <button
           className="md:hidden text-2xl focus:outline-none"
           onClick={() => setMenuOpen((prev) => !prev)}
@@ -97,7 +99,7 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* 📲 Mobile Dropdown */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -105,7 +107,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.25 }}
-            className={`md:hidden backdrop-blur-xl bg-linear-to-r from-gray-50/90 to-gray-100/80 dark:from-gray-900/90 dark:to-gray-800/80 rounded-b-2xl border-t border-gray-300 dark:border-gray-700`}
+            className="md:hidden backdrop-blur-xl bg-linear-to-r from-gray-50/90 to-gray-100/80 dark:from-gray-900/90 dark:to-gray-800/80 rounded-b-2xl border-t border-gray-300 dark:border-gray-700"
           >
             <div className="flex flex-col space-y-3 p-5">
               {navLinks.map((link) => (

@@ -6,17 +6,28 @@ import {
 } from "../features/complaints/complaintsThunks";
 import { motion, AnimatePresence } from "framer-motion";
 
+const statusColors = {
+  Pending: "bg-yellow-100 text-yellow-700 border-yellow-300",
+  "In Progress": "bg-blue-100 text-blue-700 border-blue-300",
+  Resolved: "bg-green-100 text-green-700 border-green-300",
+};
+
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { list, loading } = useSelector((s) => s.complaints);
   const [selected, setSelected] = useState(null);
   const [status, setStatus] = useState("");
   const [adminComment, setAdminComment] = useState("");
-  const [isSaving, setIsSaving] = useState(false); // ✅ prevent multiple clicks
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllComplaints());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (selected) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "auto";
+  }, [selected]);
 
   const open = (c) => {
     setSelected(c);
@@ -25,7 +36,7 @@ const AdminDashboard = () => {
   };
 
   const submitUpdate = async () => {
-    if (!selected || isSaving) return; // ✅ stop multiple clicks
+    if (!selected || isSaving) return;
     setIsSaving(true);
 
     const res = await dispatch(
@@ -36,9 +47,9 @@ const AdminDashboard = () => {
     );
 
     if (!res.error) {
-      alert("✅ Complaint updated successfully!");
-      setSelected(null); // ✅ close modal
+      setSelected(null);
       setIsSaving(false);
+      dispatch(fetchAllComplaints());
     } else {
       alert("❌ Something went wrong!");
       setIsSaving(false);
@@ -61,8 +72,9 @@ const AdminDashboard = () => {
             <motion.div
               key={c._id}
               whileHover={{ scale: 1.02 }}
-              className="rounded-2xl shadow-md p-5 transition-all duration-300 
-                         bg-white/70 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700"
+              transition={{ duration: 0.2 }}
+              className="rounded-2xl shadow-md p-5 bg-white/80 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-700 
+                         flex flex-col justify-between backdrop-blur-md transition-all duration-300"
             >
               {c.imageUrl && (
                 <img
@@ -71,29 +83,39 @@ const AdminDashboard = () => {
                   className="w-full h-48 object-cover rounded-xl mb-3"
                 />
               )}
-              <h3 className="font-semibold text-lg">{c.title}</h3>
-              <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 line-clamp-2">
-                {c.description}
-              </p>
-              <p className="text-xs text-gray-500 mt-2">
-                Reported by: {c.userId?.name || "Unknown"}
-              </p>
-              <p className="text-sm mt-2">
-                <span className="font-medium text-indigo-500 dark:text-indigo-400">
-                  Status:
-                </span>{" "}
-                {c.status}
-              </p>
-
-              {c.adminComment && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 italic">
-                  💬 {c.adminComment}
+              <div>
+                <h3 className="font-semibold text-lg truncate">{c.title}</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 line-clamp-2">
+                  {c.description}
                 </p>
-              )}
+                <p className="text-xs text-gray-500 mt-2">
+                  Reported by: {c.userId?.name || "Unknown"}
+                </p>
+
+                <div
+                  className={`inline-block mt-3 px-3 py-1 rounded-full text-xs font-medium border ${
+                    statusColors[c.status] || "bg-gray-200 text-gray-800"
+                  }`}
+                >
+                  {c.status}
+                </div>
+
+                <div className="mt-3 bg-gray-50 dark:bg-gray-900/40 p-2 rounded-lg border border-gray-200 dark:border-gray-700 max-h-20 overflow-y-auto">
+                  {c.adminComment ? (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 italic">
+                      💬 {c.adminComment}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic text-center">
+                      No admin comment yet
+                    </p>
+                  )}
+                </div>
+              </div>
 
               <button
                 onClick={() => open(c)}
-                className="mt-3 w-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-medium py-2 rounded-xl shadow hover:shadow-lg transition"
+                className="mt-4 w-full bg-linear-to-r from-indigo-500 to-purple-600 text-white font-medium py-2 rounded-xl shadow hover:shadow-lg transition"
               >
                 Review / Update
               </button>
@@ -102,11 +124,11 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* ✅ Modal for editing complaint */}
+      {/* ✅ Modal */}
       <AnimatePresence>
         {selected && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
