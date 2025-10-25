@@ -57,7 +57,6 @@ const CreateComplaint = () => {
   const mapRef = useRef(null);
   const { token } = useSelector((state) => state.auth);
 
-  // ✅ Get current location
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -81,7 +80,6 @@ const CreateComplaint = () => {
     getCurrentLocation();
   }, []);
 
-  // ✅ Input change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files && files[0]) {
@@ -96,7 +94,6 @@ const CreateComplaint = () => {
     }
   };
 
-  // ✅ Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token) return alert("Please log in to submit a complaint.");
@@ -139,160 +136,162 @@ const CreateComplaint = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-linear-to-br from-blue-50 via-white to-blue-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 px-3 py-10 sm:py-16 transition-all">
-      <div className="w-full max-w-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-300/30 dark:border-gray-700/30 p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[90vh]">
-        <h2 className="text-2xl sm:text-3xl font-bold text-center text-blue-700 dark:text-blue-400 mb-4">
-          🏙️ Report a Complaint
-        </h2>
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-blue-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 px-4 py-10 sm:px-8 transition-all">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        {/* Left: Form */}
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-300/30 dark:border-gray-700/30 p-6 sm:p-8 space-y-6">
+          <h2 className="text-3xl font-bold text-blue-700 dark:text-blue-400 text-center sm:text-left">
+            🏙️ Report a Complaint
+          </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              placeholder="Enter complaint title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Description
-            </label>
-            <textarea
-              name="description"
-              placeholder="Describe the issue..."
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-              required
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-            ></textarea>
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Category
-            </label>
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              {["Road", "Garbage", "Electricity", "Water", "Other"].map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Image Upload */}
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Upload Image (optional)
-            </label>
-            <div
-              className="relative border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500/70 hover:bg-blue-50/40 dark:hover:bg-blue-900/20 transition"
-              onClick={() => document.getElementById("fileUpload").click()}
-            >
-              {formData.preview ? (
-                <img
-                  src={formData.preview}
-                  alt="Preview"
-                  className="rounded-lg max-h-52 object-cover shadow-md"
-                />
-              ) : (
-                <>
-                  <ImagePlus className="w-10 h-10 sm:w-12 sm:h-12 text-gray-500 dark:text-gray-400 mb-2" />
-                  <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-                    Click or drag an image to upload
-                  </p>
-                </>
-              )}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
+            <div>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Title
+              </label>
               <input
-                id="fileUpload"
-                type="file"
-                name="image"
-                accept="image/*"
+                type="text"
+                name="title"
+                placeholder="Enter complaint title"
+                value={formData.title}
                 onChange={handleChange}
-                className="hidden"
+                required
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
-          </div>
 
-          {/* Map */}
-          <div>
-            <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
-              Select Location on Map
-            </label>
-            <div className="h-64 sm:h-72 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700 relative">
-              <MapContainer
-                key={mapKey}
-                center={[
-                  formData.lat ? Number(formData.lat) : 17.385,
-                  formData.lng ? Number(formData.lng) : 78.4867,
-                ]}
-                zoom={13}
-                style={{ height: "100%", width: "100%" }}
-                ref={mapRef}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
-                />
-                <LocationSelector setFormData={setFormData} />
-                {formData.lat && formData.lng && (
-                  <>
-                    <Marker
-                      position={[Number(formData.lat), Number(formData.lng)]}
-                    />
-                    <RecenterMap lat={formData.lat} lng={formData.lng} />
-                  </>
-                )}
-              </MapContainer>
+            {/* Description */}
+            <div>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Description
+              </label>
+              <textarea
+                name="description"
+                placeholder="Describe the issue..."
+                value={formData.description}
+                onChange={handleChange}
+                rows="4"
+                required
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+              ></textarea>
             </div>
 
-            <button
-              type="button"
-              onClick={getCurrentLocation}
-              className="mt-3 flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
-            >
-              <LocateFixed className="w-4 h-4" />
-              Recenter to My Location
-            </button>
+            {/* Category */}
+            <div>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Category
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                {["Road", "Garbage", "Electricity", "Water", "Other"].map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center sm:text-left">
-              📍 {formData.lat && formData.lng
-                ? `${Number(formData.lat).toFixed(4)}, ${Number(formData.lng).toFixed(4)}`
-                : "Tap on the map to select a location"}
-            </p>
+            {/* Image Upload */}
+            <div>
+              <label className="block font-medium mb-1 text-gray-700 dark:text-gray-300">
+                Upload Image (optional)
+              </label>
+              <div
+                className="relative border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:border-blue-500/70 hover:bg-blue-50/40 dark:hover:bg-blue-900/20 transition"
+                onClick={() => document.getElementById("fileUpload").click()}
+              >
+                {formData.preview ? (
+                  <img
+                    src={formData.preview}
+                    alt="Preview"
+                    className="rounded-lg max-h-52 object-cover shadow-md"
+                  />
+                ) : (
+                  <>
+                    <ImagePlus className="w-10 h-10 sm:w-12 sm:h-12 text-gray-500 dark:text-gray-400 mb-2" />
+                    <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+                      Click or drag an image to upload
+                    </p>
+                  </>
+                )}
+                <input
+                  id="fileUpload"
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleChange}
+                  className="hidden"
+                />
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 text-lg font-semibold rounded-lg bg-linear-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white flex justify-center items-center gap-2 disabled:opacity-50 transition"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin w-5 h-5" />
+              ) : (
+                <Upload className="w-5 h-5" />
+              )}
+              {loading ? "Submitting..." : "Submit Complaint"}
+            </button>
+          </form>
+        </div>
+
+        {/* Right: Map */}
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-300/30 dark:border-gray-700/30 p-6 space-y-4">
+          <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-400">
+            Select Location
+          </h3>
+
+          <div className="h-[400px] rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700 relative">
+            <MapContainer
+              key={mapKey}
+              center={[
+                formData.lat ? Number(formData.lat) : 17.385,
+                formData.lng ? Number(formData.lng) : 78.4867,
+              ]}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+              ref={mapRef}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+              />
+              <LocationSelector setFormData={setFormData} />
+              {formData.lat && formData.lng && (
+                <>
+                  <Marker position={[Number(formData.lat), Number(formData.lng)]} />
+                  <RecenterMap lat={formData.lat} lng={formData.lng} />
+                </>
+              )}
+            </MapContainer>
           </div>
 
-          {/* Submit */}
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 text-lg font-semibold rounded-lg bg-linear-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white flex justify-center items-center gap-2 disabled:opacity-50 transition"
+            type="button"
+            onClick={getCurrentLocation}
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
           >
-            {loading ? (
-              <Loader2 className="animate-spin w-5 h-5" />
-            ) : (
-              <Upload className="w-5 h-5" />
-            )}
-            {loading ? "Submitting..." : "Submit Complaint"}
+            <LocateFixed className="w-4 h-4" />
+            Recenter to My Location
           </button>
-        </form>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center sm:text-left">
+            📍 {formData.lat && formData.lng
+              ? `${Number(formData.lat).toFixed(4)}, ${Number(formData.lng).toFixed(4)}`
+              : "Tap on the map to select a location"}
+          </p>
+        </div>
       </div>
     </div>
   );
