@@ -7,11 +7,29 @@ import authRoutes from "./routes/authRoutes.js";
 import complaintRoutes from "./routes/complaintRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import { sendEmail } from "./utils/sendEmail.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
+
+app.get("/test-email", async (req, res) => {
+  try {
+    await sendEmail(
+      "codewithqadeer@gmail.com", // change this to your email
+      "Test Email from Improve My City",
+      "If you see this, your email setup works!"
+    );
+
+    res.send("✅ Email sent successfully");
+  } catch (err) {
+    console.error("❌ Email test error:", err);
+    res.status(500).send("❌ Failed to send email: " + err.message);
+  }
+});
+
+
 
 app.use(cors({
   origin: "http://localhost:5173",  // ✅ Your frontend port

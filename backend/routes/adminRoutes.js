@@ -24,5 +24,4 @@ router.patch(
   updateAdminComment
 );
 
-// ✅ Export only after all routes are defined
 export default router;
