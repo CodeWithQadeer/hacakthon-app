@@ -117,7 +117,7 @@ const CreateComplaint = () => {
         lng: Number(formData.lng),
       };
 
-      await API.post("/complaints", payload, {
+      await API.post("/api/complaints", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
