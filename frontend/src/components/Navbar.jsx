@@ -52,7 +52,7 @@ const Navbar = () => {
     <nav
       className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[92%] md:w-[80%] z-50 rounded-2xl 
       backdrop-blur-xl transition-all duration-500
-      bg-gradient-to-r from-gray-50/80 to-gray-100/70 text-gray-800 
+      bg-linear-to-r from-gray-50/80 to-gray-100/70 text-gray-800 
       border border-gray-300 shadow-[0_4px_12px_rgba(0,0,0,0.05)]
       dark:from-gray-900/90 dark:to-gray-800/80 dark:text-gray-100 dark:border-gray-700"
     >
@@ -69,7 +69,7 @@ const Navbar = () => {
                 alt="CivFix Logo"
                 className="w-14 h-14 object-contain drop-shadow-md"
               />
-              <span className="font-semibold text-3xl tracking-wide bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+              <span className="font-semibold text-3xl tracking-wide bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
                 CivFix
               </span>
             </Link>
@@ -85,7 +85,7 @@ const Navbar = () => {
                     to={to}
                     className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                       active
-                        ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-md"
+                        ? "bg-linear-to-r from-indigo-500 to-purple-500 text-white shadow-md"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-indigo-400"
                     }`}
                   >
@@ -121,7 +121,7 @@ const Navbar = () => {
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setProfileDropdown((p) => !p)}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
+                    className="flex items-center space-x-2 bg-linear-to-r from-indigo-500 to-purple-500 text-white px-4 py-2 rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
                   >
                     <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
                       <FiUser className="w-4 h-4" />
@@ -185,7 +185,7 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-2 rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
+                  className="bg-linear-to-r from-indigo-500 to-purple-500 text-white px-6 py-2 rounded-xl font-medium shadow-md hover:shadow-lg transition-all"
                 >
                   Register
                 </Link>
@@ -197,7 +197,7 @@ const Navbar = () => {
           <div className="lg:hidden flex items-center space-x-4">
             {user && (
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                <div className="w-8 h-8 bg-linear-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
                 {user.role === "admin" && (
@@ -238,7 +238,7 @@ const Navbar = () => {
                       onClick={() => setMenuOpen(false)}
                       className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
                         active
-                          ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white"
+                          ? "bg-linear-to-r from-indigo-500 to-purple-500 text-white"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
@@ -253,7 +253,7 @@ const Navbar = () => {
               {user ? (
                 <div className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
                   <div className="flex items-center space-x-3 px-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
+                    <div className="w-12 h-12 bg-linear-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-medium">
                       {user?.name?.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -313,7 +313,7 @@ const Navbar = () => {
                   <Link
                     to="/register"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-center px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium shadow-md transition-all"
+                    className="flex items-center justify-center px-4 py-3 bg-linear-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-medium shadow-md transition-all"
                   >
                     Register
                   </Link>
