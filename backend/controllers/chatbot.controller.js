@@ -1,4 +1,4 @@
-const Complaint = require("../models/complaint.model");
+const Complaint = require("../models/Complaint");
 const User = require("../models/User")
 
 /**

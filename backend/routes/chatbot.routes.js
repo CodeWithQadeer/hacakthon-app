@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { handleChatbotQuery } = require("../controllers/chatbot.controller");
-const { authMiddleware } = require("../middlewares/auth.middleware");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 // Handle preflight
 router.options("/", (req, res) => {
