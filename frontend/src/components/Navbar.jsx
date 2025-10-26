@@ -30,11 +30,19 @@ const Navbar = () => {
     >
       <div className="px-6 sm:px-10 py-4 flex justify-between items-center">
         {/* 🌆 Logo */}
+        {/* 🌆 Logo with Image */}
         <Link
           to="/"
-          className="font-semibold text-2xl tracking-wide bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text hover:opacity-80 transition"
+          className="flex justify-center items-center hover:opacity-90 transition"
         >
-          Improve My City
+          <img
+            src="/logo.png"
+            alt="CivFix Logo"
+            className="w-14 h-14 object-contain drop-shadow-md"
+          />
+          <span className="font-semibold text-3xl tracking-wide bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text">
+            CivFix
+          </span>
         </Link>
 
         {/* 🖥️ Desktop Menu */}
