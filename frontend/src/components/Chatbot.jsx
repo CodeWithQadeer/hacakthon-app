@@ -133,7 +133,7 @@ const Chatbot = () => {
       {/* Floating Chat Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all group"
+        className="fixed bottom-6 right-6 z-50 bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all group"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -158,7 +158,7 @@ const Chatbot = () => {
             className="fixed bottom-24 right-6 z-50 w-[420px] h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                   <Sparkles className="w-5 h-5" />
@@ -194,7 +194,7 @@ const Chatbot = () => {
                   <div
                     className={`max-w-[85%] ${
                       msg.type === "user"
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-br-sm"
+                        ? "bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-br-sm"
                         : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm"
                     } p-3 shadow-sm`}
                   >
@@ -290,7 +290,7 @@ const Chatbot = () => {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => sendMessage()}
                   disabled={loading || !input.trim()}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                  className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 >
                   <Send className="w-5 h-5" />
                 </motion.button>

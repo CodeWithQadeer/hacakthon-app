@@ -8,6 +8,7 @@ import complaintRoutes from "./routes/complaintRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 import { sendEmail } from "./utils/sendEmail.js";
+import chatbotRoutes from "./routes/chatbot.routes.js"
 
 dotenv.config();
 connectDB();
