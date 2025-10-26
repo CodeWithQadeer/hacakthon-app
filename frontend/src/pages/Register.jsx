@@ -1,3 +1,4 @@
+// src/pages/Register.jsx
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../features/auth/authThunks";
@@ -5,31 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Register = () => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "user",
-    adminKey: "",
-  });
-
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((s) => s.auth);
 
   const submit = async (e) => {
     e.preventDefault();
-
-    // 🧠 Optional: check for admin secret before sending
-    if (form.role === "admin" && form.adminKey !== import.meta.env.VITE_ADMIN_KEY) {
-      alert("❌ Invalid Admin Secret Key");
-      return;
-    }
-
-    const payload = { ...form };
-    delete payload.adminKey; // don't send key to backend
-
-    const res = await dispatch(registerUser(payload));
+    const res = await dispatch(registerUser(form));
     if (!res.error) navigate("/");
   };
 
@@ -52,7 +36,6 @@ const Register = () => {
         )}
 
         <form onSubmit={submit} className="space-y-5">
-          {/* Name */}
           <input
             required
             name="name"
@@ -61,7 +44,6 @@ const Register = () => {
             onChange={(e) => setForm({ ...form, name: e.target.value })}
           />
 
-          {/* Email */}
           <input
             required
             name="email"
@@ -71,7 +53,6 @@ const Register = () => {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
 
-          {/* Password */}
           <input
             required
             name="password"
@@ -81,29 +62,6 @@ const Register = () => {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
-          {/* Role Selection */}
-          <select
-            name="role"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-            className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white/70 dark:bg-gray-800/40 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-          >
-            <option value="user">Register as User</option>
-            <option value="admin">Register as Admin</option>
-          </select>
-
-          {/* Admin Key Field (only visible when admin selected) */}
-          {form.role === "admin" && (
-            <input
-              required
-              type="password"
-              placeholder="Enter Admin Secret Key"
-              className="w-full p-3 rounded-xl border border-red-400 dark:border-red-700 bg-white/70 dark:bg-gray-800/40 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
-              onChange={(e) => setForm({ ...form, adminKey: e.target.value })}
-            />
-          )}
-
-          {/* Submit */}
           <button
             disabled={loading}
             className="w-full py-3 rounded-xl font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-300 disabled:opacity-70"
