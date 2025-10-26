@@ -78,7 +78,7 @@ const Chatbot = () => {
       }
 
       // Call chatbot API
-      const res = await API.post("/chatbot", { message: messageText });
+      const res = await API.post("api/chatbot", { message: messageText });
 
       // Add bot response
       setMessages((prev) => [
