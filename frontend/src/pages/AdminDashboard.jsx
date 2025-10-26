@@ -35,16 +35,12 @@ const AdminDashboard = () => {
     setAdminComment(c.adminComment || "");
   };
 
-  // ✅ Save complaint update (runs async, modal closes immediately)
   const submitUpdate = async () => {
     if (!selected || isSaving) return;
     setIsSaving(true);
-
-    // 🟢 Close modal immediately (non-blocking UX)
     const currentId = selected._id;
     setSelected(null);
 
-    // 🟢 Run async update in background
     dispatch(
       adminUpdateComplaint({
         id: currentId,
@@ -53,7 +49,6 @@ const AdminDashboard = () => {
     )
       .unwrap()
       .then(() => {
-        // 🟢 Refresh complaints in background after saving
         dispatch(fetchAllComplaints());
       })
       .catch(() => {
@@ -64,12 +59,42 @@ const AdminDashboard = () => {
       });
   };
 
+  // 🟣 Calculate stats
+  const total = list.length;
+  const pending = list.filter((c) => c.status === "Pending").length;
+  const inProgress = list.filter((c) => c.status === "In Progress").length;
+  const resolved = list.filter((c) => c.status === "Resolved").length;
+
   return (
     <div className="p-6 text-gray-900 dark:text-gray-100">
       <h2 className="text-2xl font-bold mb-6 text-center">
         🛠️ Admin Dashboard
       </h2>
 
+      {/* ✅ STATS CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <div className="bg-blue-900/80 dark:bg-blue-950 text-center py-5 rounded-xl shadow-lg">
+          <h3 className="text-3xl font-bold text-white">{total}</h3>
+          <p className="text-blue-200 mt-1">Total Complaints</p>
+        </div>
+
+        <div className="bg-yellow-800/80 dark:bg-yellow-900 text-center py-5 rounded-xl shadow-lg">
+          <h3 className="text-3xl font-bold text-white">{pending}</h3>
+          <p className="text-yellow-200 mt-1">Pending</p>
+        </div>
+
+        <div className="bg-orange-900/80 dark:bg-orange-950 text-center py-5 rounded-xl shadow-lg">
+          <h3 className="text-3xl font-bold text-white">{inProgress}</h3>
+          <p className="text-orange-200 mt-1">In Progress</p>
+        </div>
+
+        <div className="bg-green-900/80 dark:bg-green-950 text-center py-5 rounded-xl shadow-lg">
+          <h3 className="text-3xl font-bold text-white">{resolved}</h3>
+          <p className="text-green-200 mt-1">Resolved</p>
+        </div>
+      </div>
+
+      {/* ✅ Complaints Grid */}
       {loading ? (
         <p className="text-center text-gray-500 dark:text-gray-400">
           Loading complaints...
