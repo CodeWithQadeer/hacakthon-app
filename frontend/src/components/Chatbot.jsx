@@ -177,7 +177,7 @@ const Chatbot = () => {
       {/* Floating Button */}
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all"
+        className="fixed bottom-6 right-6 z-50 bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-2xl transition-all"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
@@ -195,7 +195,7 @@ const Chatbot = () => {
             className="fixed bottom-24 right-4 z-50 w-[90%] sm:w-[400px] h-[70vh] sm:h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+            <div className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Sparkles className="w-5 h-5" />
                 <h3 className="font-semibold text-lg">AI Complaint Assistant</h3>
@@ -220,7 +220,7 @@ const Chatbot = () => {
                   <div
                     className={`max-w-[85%] px-3 py-2 rounded-2xl ${
                       msg.type === "user"
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                        ? "bg-linear-to-r from-blue-600 to-purple-600 text-white"
                         : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border"
                     } text-sm shadow-sm whitespace-pre-wrap`}
                   >
@@ -278,7 +278,7 @@ const Chatbot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => sendMessage()}
                 disabled={!input.trim() || loading}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2 rounded-xl"
+                className="bg-linear-to-r from-blue-600 to-purple-600 text-white p-2 rounded-xl"
               >
                 <Send className="w-4 h-4" />
               </motion.button>
