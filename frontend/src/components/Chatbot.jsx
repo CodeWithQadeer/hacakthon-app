@@ -1,181 +1,307 @@
-// src/components/Chatbot.jsx
 import { useState, useRef, useEffect } from "react";
-import api from "../api/api";
-import { MessageSquare, X } from "lucide-react";
+import { useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, X, Send, Sparkles } from "lucide-react";
+import API from "../api/api";
 
 const Chatbot = () => {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
-      from: "bot",
-      text: `👋 Hi! I'm your Smart Assistant 🤖  
-How can I help you today?`,
-      options: [
-        "📋 Check Complaint Status",
-        "🧾 How to Create Complaint",
-        "📍 Show Nearby Complaints",
-        "❓ Help",
-      ],
+      type: "bot",
+      text: "👋 Hi! I'm your AI complaint assistant.\n\nI can help you:\n• Check complaint status\n• Find specific complaints\n• Get summaries & stats\n\nJust ask me anything!",
+      timestamp: new Date(),
     },
   ]);
-
-  const chatbotRef = useRef(null);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const { token } = useSelector((s) => s.auth);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Close when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (chatbotRef.current && !chatbotRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    if (open) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+  // Quick action suggestions
+  const suggestions = [
+    "Check my complaints",
+    "Show latest complaint",
+    "How many pending?",
+    "Show summary",
+  ];
 
-  // Auto scroll
-  useEffect(() => {
+  // Auto-scroll to bottom
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const toggleOpen = () => {
-    setOpen((prev) => !prev);
   };
 
-  const handleOptionClick = async (option) => {
-    setMessages((prev) => [...prev, { from: "user", text: option }]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-    let botReply = "";
+  // Focus input when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
+
+  const sendMessage = async (customMessage = null) => {
+    const messageText = customMessage || input.trim();
+    if (!messageText) return;
+
+    // Hide suggestions after first message
+    setShowSuggestions(false);
+
+    // Add user message
+    const userMsg = {
+      type: "user",
+      text: messageText,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
 
     try {
-      if (option.includes("Status")) {
-        const res = await api.get("/complaints/my");
-        const complaints = res.data;
-
-        if (!complaints?.length) {
-          botReply = "📭 You don’t have any complaints yet.";
-        } else {
-          botReply =
-            "📝 Here are your recent complaints:\n" +
-            complaints
-              .map((c) => `• ${c.title} — ${c.status}`)
-              .join("\n");
-        }
-      } else if (option.includes("Create")) {
-        botReply =
-          "🧾 To create a complaint, go to the 'Report' page and fill in details like title, description, image, and location.";
-      } else if (option.includes("Nearby")) {
-        botReply =
-          "📍 Nearby complaints feature is coming soon! Stay tuned 🚀";
-      } else if (option.includes("Help")) {
-        botReply =
-          "🤖 You can tap on any of the options below to quickly get info.\n\n💡 More features & typing ability coming soon!";
+      // Check authentication
+      const currentToken = token || localStorage.getItem("token");
+      if (!currentToken) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            type: "bot",
+            text: "🔒 Please log in to access your complaint information.",
+            timestamp: new Date(),
+          },
+        ]);
+        setLoading(false);
+        return;
       }
 
-      // Append bot message
+      // Call chatbot API
+      const res = await API.post("/chatbot", { message: messageText });
+
+      // Add bot response
       setMessages((prev) => [
         ...prev,
         {
-          from: "bot",
-          text: botReply,
-          options: [
-            "📋 Check Complaint Status",
-            "🧾 How to Create Complaint",
-            "📍 Show Nearby Complaints",
-            "❓ Help",
-          ],
+          type: "bot",
+          text: res.data.response,
+          timestamp: new Date(),
         },
       ]);
     } catch (err) {
-      console.error(err);
+      console.error("Chatbot error:", err);
       setMessages((prev) => [
         ...prev,
         {
-          from: "bot",
-          text: "⚠ Something went wrong. Please try again.",
+          type: "bot",
+          text:
+            err.response?.data?.response ||
+            "😔 Sorry, something went wrong. Please try again!",
+          timestamp: new Date(),
         },
       ]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    sendMessage(suggestion);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const clearChat = () => {
+    setMessages([
+      {
+        type: "bot",
+        text: "Chat cleared! How can I help you?",
+        timestamp: new Date(),
+      },
+    ]);
+    setShowSuggestions(true);
   };
 
   return (
     <>
-      {/* Floating Button */}
-      <button
-        onClick={toggleOpen}
-        className="fixed bottom-6 right-6 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white w-14 h-14 md:w-16 md:h-16 rounded-full shadow-lg flex items-center justify-center z-50 transition-all active:scale-95"
+      {/* Floating Chat Button */}
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all group"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
       >
-        {open ? <X size={24} /> : <MessageSquare size={24} />}
-      </button>
+        {isOpen ? (
+          <X className="w-6 h-6" />
+        ) : (
+          <>
+            <MessageCircle className="w-6 h-6" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+          </>
+        )}
+      </motion.button>
 
       {/* Chat Window */}
-      {open && (
-        <div
-          ref={chatbotRef}
-          className="fixed bottom-20 right-4 md:right-6 w-[90vw] max-w-sm bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 flex flex-col animate-fadeIn"
-        >
-          {/* Header */}
-          <div className="p-3 bg-linear-to-r from-blue-600 to-indigo-600 rounded-t-2xl flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-white">
-              Smart Complaint Bot
-            </h3>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-white hover:text-red-200"
-            >
-              <X size={18} />
-            </button>
-          </div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-24 right-6 z-50 w-[420px] h-[600px] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">AI Assistant</h3>
+                  <p className="text-xs opacity-90 flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    Online
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={clearChat}
+                className="text-white/80 hover:text-white text-xs px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 transition"
+              >
+                Clear
+              </button>
+            </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm max-h-[65vh] md:max-h-96 scroll-smooth">
-            {messages.map((msg, i) => (
-              <div key={i} className="flex flex-col space-y-1">
-                <div
-                  className={`p-2 px-3 rounded-2xl whitespace-pre-wrap max-w-[85%] ${
-                    msg.from === "bot"
-                      ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 self-start"
-                      : "bg-linear-to-r from-blue-600 to-indigo-600 text-white self-end ml-auto"
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
+              {messages.map((msg, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`flex ${
+                    msg.type === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
-                  {msg.text}
-                </div>
-
-                {msg.options && msg.from === "bot" && (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {msg.options.map((opt, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleOptionClick(opt)}
-                        className="px-3 py-1.5 text-xs md:text-sm bg-linear-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:opacity-90 active:scale-95 transition"
+                  <div
+                    className={`max-w-[85%] ${
+                      msg.type === "user"
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl rounded-br-sm"
+                        : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm"
+                    } p-3 shadow-sm`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                      {msg.text}
+                    </p>
+                    {msg.timestamp && (
+                      <p
+                        className={`text-xs mt-1 ${
+                          msg.type === "user"
+                            ? "text-white/60"
+                            : "text-gray-500 dark:text-gray-400"
+                        }`}
                       >
-                        {opt}
-                      </button>
+                        {msg.timestamp.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Loading Animation */}
+              {loading && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-start"
+                >
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-2xl rounded-bl-sm shadow-sm">
+                    <div className="flex space-x-2">
+                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" />
+                      <div
+                        className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      />
+                      <div
+                        className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Quick Suggestions */}
+              {showSuggestions && messages.length === 1 && !loading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="space-y-2"
+                >
+                  <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-3">
+                    Quick actions:
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {suggestions.map((suggestion, idx) => (
+                      <motion.button
+                        key={idx}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 text-xs px-3 py-2 rounded-lg transition-all shadow-sm hover:shadow"
+                      >
+                        {suggestion}
+                      </motion.button>
                     ))}
                   </div>
-                )}
+                </motion.div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message..."
+                  className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                  disabled={loading}
+                />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => sendMessage()}
+                  disabled={loading || !input.trim()}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-2.5 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                >
+                  <Send className="w-5 h-5" />
+                </motion.button>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Footer message */}
-          <div className="text-center text-xs text-gray-400 dark:text-gray-500 p-2 border-t border-gray-200 dark:border-gray-700">
-            💡 More features & typing ability coming soon!
-          </div>
-        </div>
-      )}
-
-      {/* Animation */}
-      <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
+                Powered by AI • Ask me anything!
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

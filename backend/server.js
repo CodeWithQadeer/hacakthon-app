@@ -34,6 +34,7 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // ✅ Test route for email verification
 app.get("/test-email", async (req, res) => {
