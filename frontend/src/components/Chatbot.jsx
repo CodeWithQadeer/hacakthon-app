@@ -1,26 +1,26 @@
+// src/components/Chatbot.jsx
 import { useState, useRef, useEffect } from "react";
 import api from "../api/api";
-import { MessageSquare, X, Send } from "lucide-react";
+import { MessageSquare, X } from "lucide-react";
 
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     {
       from: "bot",
       text: `👋 Hi! I'm your Smart Assistant 🤖  
-Here’s what I can help you with right now:  
-• Check your complaint status by title  
-• Show your nearby complaints  
-• Get help  
-  
-✨ More exciting features will be available soon!`,
+How can I help you today?`,
+      options: [
+        "📋 Check Complaint Status",
+        "🧾 How to Create Complaint",
+        "📍 Show Nearby Complaints",
+        "❓ Help",
+      ],
     },
   ]);
-  const [loading, setLoading] = useState(false);
+
   const chatbotRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
 
   // Close when clicking outside
   useEffect(() => {
@@ -38,75 +38,63 @@ Here’s what I can help you with right now:
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Focus input on open
-  useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 300);
-  }, [open]);
-
   const toggleOpen = () => {
     setOpen((prev) => !prev);
-    setInput("");
   };
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleOptionClick = async (option) => {
+    setMessages((prev) => [...prev, { from: "user", text: option }]);
 
-    const userMessage = input.trim();
-    setMessages((prev) => [...prev, { from: "user", text: userMessage }]);
-    setInput("");
-    setLoading(true);
+    let botReply = "";
 
     try {
-      let botReply = "";
-      const lowerMsg = userMessage.toLowerCase();
-
-      if (lowerMsg.includes("status") || lowerMsg.includes("complaint")) {
-        const titleMatch = userMessage
-          .replace(/status|complaint|of|for|about/gi, "")
-          .trim()
-          .toLowerCase();
-
+      if (option.includes("Status")) {
         const res = await api.get("/complaints/my");
         const complaints = res.data;
 
         if (!complaints?.length) {
           botReply = "📭 You don’t have any complaints yet.";
-        } else if (titleMatch) {
-          const complaint = complaints.find((c) =>
-            c.title.toLowerCase().includes(titleMatch)
-          );
-          botReply = complaint
-            ? `📝 Your complaint "${complaint.title}" is currently *${complaint.status}*.`
-            : `❌ No complaint found with title similar to "${titleMatch}".`;
         } else {
           botReply =
-            "Here are your complaints:\n" +
-            complaints.map((c) => `• ${c.title} — ${c.status}`).join("\n");
+            "📝 Here are your recent complaints:\n" +
+            complaints
+              .map((c) => `• ${c.title} — ${c.status}`)
+              .join("\n");
         }
-      } else if (lowerMsg.includes("create")) {
+      } else if (option.includes("Create")) {
         botReply =
           "🧾 To create a complaint, go to the 'Report' page and fill in details like title, description, image, and location.";
-      } else if (lowerMsg.includes("nearby")) {
+      } else if (option.includes("Nearby")) {
         botReply =
-          "📍 Soon I’ll show complaints near your location — feature coming soon!";
-      } else if (lowerMsg.includes("help")) {
+          "📍 Nearby complaints feature is coming soon! Stay tuned 🚀";
+      } else if (option.includes("Help")) {
         botReply =
-          "🤖 You can ask:\n• Check complaint status by title\n• Create complaint\n• Show nearby complaints\n\n✨ More features coming soon!";
-      } else {
-        botReply =
-          "🙃 Sorry, I didn’t get that.\nTry asking like:\n➡ 'Status of garbage complaint'\n➡ 'Show my complaint status'";
+          "🤖 You can tap on any of the options below to quickly get info.\n\n💡 More features & typing ability coming soon!";
       }
 
-      setMessages((prev) => [...prev, { from: "bot", text: botReply }]);
+      // Append bot message
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: "bot",
+          text: botReply,
+          options: [
+            "📋 Check Complaint Status",
+            "🧾 How to Create Complaint",
+            "📍 Show Nearby Complaints",
+            "❓ Help",
+          ],
+        },
+      ]);
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { from: "bot", text: "⚠ Something went wrong. Please try again." },
+        {
+          from: "bot",
+          text: "⚠ Something went wrong. Please try again.",
+        },
       ]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -128,7 +116,9 @@ Here’s what I can help you with right now:
         >
           {/* Header */}
           <div className="p-3 bg-linear-to-r from-blue-600 to-indigo-600 rounded-t-2xl flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-white">Smart Complaint Bot</h3>
+            <h3 className="text-lg font-semibold text-white">
+              Smart Complaint Bot
+            </h3>
             <button
               onClick={() => setOpen(false)}
               className="text-white hover:text-red-200"
@@ -140,44 +130,39 @@ Here’s what I can help you with right now:
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-3 space-y-3 text-sm max-h-[65vh] md:max-h-96 scroll-smooth">
             {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`p-2 px-3 rounded-2xl whitespace-pre-wrap max-w-[85%] ${
-                  msg.from === "bot"
-                    ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 self-start"
-                    : "bg-linear-to-r from-blue-600 to-indigo-600 text-white self-end ml-auto"
-                }`}
-              >
-                {msg.text}
+              <div key={i} className="flex flex-col space-y-1">
+                <div
+                  className={`p-2 px-3 rounded-2xl whitespace-pre-wrap max-w-[85%] ${
+                    msg.from === "bot"
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 self-start"
+                      : "bg-linear-to-r from-blue-600 to-indigo-600 text-white self-end ml-auto"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+
+                {msg.options && msg.from === "bot" && (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {msg.options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleOptionClick(opt)}
+                        className="px-3 py-1.5 text-xs md:text-sm bg-linear-to-r from-blue-500 to-indigo-500 text-white rounded-xl hover:opacity-90 active:scale-95 transition"
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
-            {loading && (
-              <div className="text-gray-400 text-xs italic">Bot is typing...</div>
-            )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <form
-            onSubmit={sendMessage}
-            className="flex items-center border-t border-gray-200 dark:border-gray-700 p-2"
-          >
-            <input
-              ref={inputRef}
-              type="text"
-              placeholder="Type your message..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 p-2 rounded-lg outline-none dark:bg-gray-700 dark:text-white text-sm md:text-base"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="ml-2 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-2 rounded-full disabled:opacity-50 transition-transform active:scale-95"
-            >
-              <Send size={16} />
-            </button>
-          </form>
+          {/* Footer message */}
+          <div className="text-center text-xs text-gray-400 dark:text-gray-500 p-2 border-t border-gray-200 dark:border-gray-700">
+            💡 More features & typing ability coming soon!
+          </div>
         </div>
       )}
 

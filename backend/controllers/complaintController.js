@@ -24,6 +24,7 @@ export const createComplaint = async (req, res, next) => {
       category,
       imageUrl,
       location: { lat, lng, address },
+      status: "Pending", // ✅ default status
     });
 
     res.status(201).json({
@@ -52,12 +53,12 @@ export const getMyComplaints = async (req, res, next) => {
 export const getAllComplaints = async (req, res, next) => {
   try {
     const complaints = await Complaint.find()
-      .populate("userId", "name email") // ✅ populate user info
-      .sort({ createdAt: -1 }); // newest first
+      .populate("userId", "name email")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(complaints);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching complaints" });
+    res.status(500).json({ message: "Error fetching complaints", error: err.message });
   }
 };
 
@@ -107,10 +108,11 @@ export const updateComplaint = async (req, res, next) => {
       "userId",
       "name email"
     );
+
     if (!complaint)
       return res.status(404).json({ message: "Complaint not found" });
 
-    // Update complaint details
+    // ✅ Update complaint fields
     if (status) complaint.status = status;
     if (adminMessage) complaint.adminMessage = adminMessage;
 
@@ -120,6 +122,23 @@ export const updateComplaint = async (req, res, next) => {
       message: "Complaint updated successfully",
       complaint,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/* 🗑️ DELETE COMPLAINT (OPTIONAL - ADMIN) */
+export const deleteComplaint = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const complaint = await Complaint.findById(id);
+    if (!complaint)
+      return res.status(404).json({ message: "Complaint not found" });
+
+    await complaint.deleteOne();
+
+    res.status(200).json({ message: "Complaint deleted successfully" });
   } catch (err) {
     next(err);
   }
